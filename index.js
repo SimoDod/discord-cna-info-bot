@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits } = require("discord.js");
 require("dotenv").config();
 const registerSlashCommands = require("./src/registerSlashCommands.js");
 const formatAssetInfo = require("./src/formatAssetInfo.js");
+const { ignoredAssetInfoKeys } = require("./src/constants.js");
 const { isPolicyId } = require("./src/utils.js");
 const subscribeForKothNotifications = require("./src/subscribeForKothNotifications.js");
 const api = require("./src/api/api.js");
@@ -39,7 +40,9 @@ client.on("interactionCreate", async (interaction) => {
 
       const response = await api.get(`/assets/${id}`);
 
-      await interaction.reply(formatAssetInfo(response.data));
+      await interaction.reply(
+        formatAssetInfo(response.data, ignoredAssetInfoKeys).slice(0, 2000)
+      );
     } catch (error) {
       console.error(error);
       await interaction.reply("Failed to retrieve asset info.");
