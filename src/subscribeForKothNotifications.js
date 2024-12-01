@@ -16,7 +16,7 @@ const subscribeForKothNotifications = (channel) => {
       const assetIdNoDot = assetId.split(".").join("");
 
       const tokenDataResponse = await api.get("/assets/" + assetIdNoDot);
-      const ticker = tokenDataResponse.data.onchain_metadata.ticker;
+      const { ticker, name } = tokenDataResponse.data.onchain_metadata;
 
       if (oldId !== newId) {
         oldId = newId;
@@ -24,7 +24,7 @@ const subscribeForKothNotifications = (channel) => {
           response.data.metrics
         );
         channel.send(
-          `New KOTH: **\`\`${ticker.toUpperCase()}\`\`** \n${formatAssetInfo(
+          `New KOTH: \`\`\`Ticker: ${ticker.toUpperCase()}; Name: ${name}\`\`\`** \n${formatAssetInfo(
             convertedMetrics
           )}**AssetId:** ${assetIdNoDot} \nhttps://snek.fun/token/${assetId}`
         );
