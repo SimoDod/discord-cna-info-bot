@@ -15,7 +15,7 @@ const subscribeForKothNotifications = (channel) => {
       const assetId = response.data.pool.y.asset;
       const assetIdNoDot = assetId.split(".").join("");
 
-      const tokenDataResponse = await api.get("/asset/" + assetIdNoDot);
+      const tokenDataResponse = await api.get("/assets/" + assetIdNoDot);
       const ticker = tokenDataResponse.data.onchain_metadata.ticker;
 
       if (oldId !== newId) {
