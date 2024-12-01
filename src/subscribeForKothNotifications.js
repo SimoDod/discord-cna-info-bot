@@ -1,6 +1,7 @@
 const axios = require("axios").default;
 const { transformLovelaceToAdaMetrics } = require("./utils.js");
 const formatAssetInfo = require("./formatAssetInfo.js");
+const api = require("./api/api.js");
 
 const subscribeForKothNotifications = (channel) => {
   let oldId = "";
@@ -10,9 +11,12 @@ const subscribeForKothNotifications = (channel) => {
       const response = await axios.get(
         "https://analytics-snekfun.splash.trade/ws-http/v1/snekfun/koth"
       );
-
       const newId = response.data.pool.id;
       const assetId = response.data.pool.y.asset;
+      const assetIdNoDot = assetId.split(".").join("");
+
+      const tokenDataResponse = await api.get("/asset/" + assetIdNoDot);
+      const ticker = tokenDataResponse.data.onchain_metadata.ticker;
 
       if (oldId !== newId) {
         oldId = newId;
@@ -20,11 +24,9 @@ const subscribeForKothNotifications = (channel) => {
           response.data.metrics
         );
         channel.send(
-          `New KOTH: \n${formatAssetInfo(
+          `New KOTH: \`\`${ticker}\`\` \n${formatAssetInfo(
             convertedMetrics
-          )}**AssetId:** ${assetId
-            .split(".")
-            .join("")} \nhttps://snek.fun/token/${assetId}`
+          )}**AssetId:** ${assetIdNoDot} \nhttps://snek.fun/token/${assetId}`
         );
       }
     } catch (error) {
