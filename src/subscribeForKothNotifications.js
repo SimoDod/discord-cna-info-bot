@@ -24,7 +24,7 @@ const subscribeForKothNotifications = (channel) => {
           response.data.metrics
         );
         channel.send(
-          `New KOTH: \`\`\`Ticker: ${ticker.toUpperCase()}; Name: ${name}\`\`\`** \n${formatAssetInfo(
+          `New KOTH: \`\`\`Ticker: ${ticker.toUpperCase()}; Name: ${name};\`\`\` \n${formatAssetInfo(
             convertedMetrics
           )}**AssetId:** ${assetIdNoDot} \nhttps://snek.fun/token/${assetId}`
         );
