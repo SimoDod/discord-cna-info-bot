@@ -5,7 +5,10 @@ const formatAssetInfo = require("./src/formatAssetInfo.js");
 const { ignoredAssetInfoKeys } = require("./src/constants.js");
 const { isPolicyId } = require("./src/utils.js");
 const subscribeForKothNotifications = require("./src/subscribeForKothNotifications.js");
+const axios = require("axios");
 const api = require("./src/api/api.js");
+const { HttpStatusCode } = require("axios");
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -16,11 +19,13 @@ const client = new Client({
 
 registerSlashCommands();
 
-client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-});
-
 let kothIntervalId = null;
+let BOT_ID = null;
+
+client.once("ready", async () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+  BOT_ID = client.user.id;
+});
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
@@ -72,6 +77,40 @@ client.on("interactionCreate", async (interaction) => {
         await interaction.reply("King of the Hill event is not running!");
       }
     }
+  }
+});
+
+let conversationHistory = "";
+
+client.on("messageCreate", async (message) => {
+  if (message.author.bot || !message.mentions.has(BOT_ID)) return;
+
+  const userMessage = message.content.replace(`<@${BOT_ID}>`, "").trim();
+  if (!userMessage) return;
+
+  try {
+    await message.channel.sendTyping();
+
+    const prompt = `${conversationHistory}User: ${userMessage}\nAssistant:`;
+
+    const response = await axios.post("http://localhost:11434/api/generate", {
+      model: "mistral",
+      prompt,
+      stream: false,
+      max_tokens: 40,
+    });
+
+    if (response.status !== HttpStatusCode.Ok)
+      throw new Error(`HTTP error! Status: ${response.status}`);
+
+    const data = await response.data;
+
+    conversationHistory = `${prompt}${data.response}\n`;
+
+    await message.reply(data.response || "No response from Ollama.");
+  } catch (error) {
+    console.error("Error with local AI:", error);
+    await message.reply("Sorry, I couldn't generate a response.");
   }
 });
 
