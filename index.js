@@ -98,6 +98,8 @@ client.on("messageCreate", async (message) => {
       prompt,
       stream: false,
       max_tokens: 40,
+      system: "Keep responses short and concise.",
+      num_threads: 6,
     });
 
     if (response.status !== HttpStatusCode.Ok)
