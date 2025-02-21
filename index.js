@@ -94,12 +94,11 @@ client.on("messageCreate", async (message) => {
     const prompt = `${conversationHistory}User: ${userMessage}\nAssistant:`;
 
     const response = await axios.post("http://localhost:11434/api/generate", {
-      model: "mistral",
+      model: "deepseek-r1:70b",
       prompt,
       stream: false,
       max_tokens: 40,
       system: "Keep responses short and concise.",
-      num_threads: 6,
     });
 
     if (response.status !== HttpStatusCode.Ok)
